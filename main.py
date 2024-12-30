@@ -3,21 +3,15 @@ import shutil
 import zipfile
 import ctypes, sys
 import logging
+from pyuac import main_requires_admin
+
 
 class Utils():
     def __init__(self):
         # logging config
         logging.basicConfig(filename='organize_kits.log', filemode='w', level=logging.DEBUG, format='%(asctime)s ; %(levelname)s ; %(message)s')
-
         # paths
         self.download_path = os.path.join(os.path.expanduser('~'), 'Downloads')
-
-    # checks if user is admin
-    def is_user_admin(self):
-        try:
-            return ctypes.windll.shell32.IsUserAnAdmin()
-        except:
-            return False
 
     def print_files_in_folder(ext, path):  # debug function
         for root, dirs, files in os.walk(path):
@@ -49,6 +43,7 @@ class AutoDrumkit():
                     # move the file
                     shutil.move(src, new_folder_path)
                     logging.debug(f"Moved zip to: {new_folder_path}")
+                    print("Will even this print?")
 
                     # unzip
                     with zipfile.ZipFile(zip_destination, "r") as zip_ref:
@@ -61,14 +56,13 @@ class AutoDrumkit():
                     logging.error(f"Error organizing kit {filename}: {e}")
 
         logging.debug("Finished organizing kits")
+        print("Will this print?")
 
+    @main_requires_admin
     def main(self):
         utils = Utils()
-        if not utils.is_user_admin():
-            # Re-run the program with admin rights
-            ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
-            return
         logging.debug("Starting the script with admin rights")
+        print("This prints")
         self.organize_kits(utils.download_path)
 
 
